@@ -189,3 +189,9 @@ for(fold in fold.dt)
 # Make a comment in your report on your interpretation of the figure.
 # Are the neural networks better than baseline? 
 # Which of the two neural networks is more accurate?
+ggplot()+
+  geom_tile(aes(
+    x=network.data.dt, y=model_conv, fill=intensity),
+    data=zip.some.tall)+
+  facet_wrap("observation")
+  coord_equal()+
