@@ -114,10 +114,11 @@ network.data.dt <- list()
 # TODO: Use x_train/y_train to fit the two neural network models described above.
 # Use at least 20 epochs with validation_split=0.2 (which splits the train data 
 # into 20% validation, 80% subtrain).
-for(fold in fold.dt)
+for(fold in fold.dt.list)
 {
 	x_subtrain = fold[2]
 	y_subtrain = fold[3]
+	print(fold[3])
 	#train convolutional network
 	# same model architecture as in mnist_ccn_keras R example, but with the input_shape changed to 
 	# reflect the size of the zip.train images (16x16). There should be 315146 total parameters to learn
@@ -142,9 +143,9 @@ for(fold in fold.dt)
 
 
 	# TODO:  Compute validation loss for each number of epochs, and define a
-	# variable best_epochs which is the number of epochs that results in 
+	# variable best_epochs which is the number of epochs that results in
 	# minimal validation loss.
-	val_loss <- NULL 
+	val_loss <- NULL
 	best_epochs <- 100
 
 
@@ -156,7 +157,7 @@ for(fold in fold.dt)
 				verbose = 2
 				)
 
-		
+
 		#train dense network
 		#fully connected (784, 270, 270, 128, 10) network. The size of this network is deliberately 	chosen
 		# to have a similar number of parameters to learn: 321,098
@@ -174,12 +175,12 @@ for(fold in fold.dt)
 
 	# TODO: Also compute the accuracy of the baseline model,
 	# which always predicts the most frequent class label in the train data.
-	
+
 
 	# TODO: At the end of your for loop over fold IDs,
 	# you should store the accuracy values, model names,
 	# and fold IDs in a data structure (e.g. list of data tables) for analysis/plotting.
-	network.data.dt[fold] <- [scores, foldID]
+	#network.data.dt[fold] <- [scores, foldID]
 
 } #end of loop over fold IDs
 
@@ -192,8 +193,8 @@ for(fold in fold.dt)
 # Which of the two neural networks is more accurate?
 ggplot()+
   geom_tile(aes(
-    x=network.data.dt, y=model_conv, fill=intensity),
+    x=accuracy.dt, y=model_conv, fill=intensity),
 	    # Not sure what to set data to
-    data=zip.some.tall)+
+    data=accuracy)+
   facet_wrap("observation")
   coord_equal()
