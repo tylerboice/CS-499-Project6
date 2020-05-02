@@ -199,4 +199,4 @@ ggplot()+
 	    # Not sure what to set data to
     data=zip.some.tall)+
   facet_wrap("observation")
-  coord_equal()+
+  coord_equal()
