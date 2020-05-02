@@ -48,7 +48,6 @@ fold_vec <- rep(sample(1:5), l=nrow(X.mat))
 # input shape of the images (16x16)
 input_shape <- c(16, 16, 1)
 
-
 # For each fold ID, you should create variables x_train, y_train, x_test, y_test 
 # based on fold_vec.
 
@@ -81,9 +80,9 @@ fold.dt <- do.call(rbind, fold.dt.list)
 	model_conv <- keras_model_sequential() %>%
 		layer_conv_2d(filters = 32, kernel_size = c(3,3), activation = 'relu', 
 		input_shape = input_shape) %>%
-		layer_conv_2d(filters = 64, kernel_szie = c(3,3), activation = 'relu' ) %>%
+		layer_conv_2d(filters = 64, kernel_size = c(3,3), activation = 'relu' ) %>%
 		layer_max_pooling_2d(pool_size = c(2,2)) %>%
-		layer_flatter() %>%
+		layer_flatten() %>%
 		layer_dense(units = 128, activation = 'relu') %>%
 		layer_dense(units = num_classes, activation = 'softmax')
 		
