@@ -24,6 +24,7 @@ library(data.table)
 library(ggplot2)
 library(tensorflow)
 library(keras)
+mnist <- keras::dataset_mnist()
 library(R.utils)
 
 # Load zip.train.gz
@@ -71,9 +72,55 @@ for(test.fold in 1:5) {
 }
 fold.dt <- do.call(rbind, fold.dt.list)
 
+
+# set up convolutional model and dense model
+	#TODO convolutional model may not be correctly set up yet
+	model_conv <- keras_model_sequential() %>%
+		layer_conv_2d(filters = 32, kernel_size = c(3,3), activation = 'relu', 
+		input_shape = input_shape) %>%
+		layer_conv_2d(filters = 64, kernel_szie = c(3,3), activation = 'relu' ) %>%
+		layer_max_pooling_2d(pool_size = c(2,2)) %>%
+		layer_flatter() %>%
+		layer_dense(units = 128, activation = 'relu') %>%
+		layer_dense(units = num_classes, activation = 'softmax')
+		
+	model_conv %>%
+		compile(
+			loss = "loss_categorical_crossentropy",
+			optimizer = optimizer_adadelta(),
+			metrics = c('accuracy'))
+			
+	
+		
+	model_dense <- keras_model_sequential() %>%
+		layer_dense(units = 270, activation = "sigmoid") %>%
+		layer_dense(units = 270, activation = "sigmoid") %>%
+		layer_dense(units = 128, activation = "sigmoid") %>%
+	
+	model_dense %>%
+		compile(
+			loss = "loss_categorical_crossentropy",
+			optimizer = optimizer_adadelta(),
+			metrics = c('accuracy'))
+			
 # TODO: Use x_train/y_train to fit the two neural network models described above.
 # Use at least 20 epochs with validation_split=0.2 (which splits the train data 
 # into 20% validation, 80% subtrain).
+for(fold in fold.dt)
+{
+	is.validation <- sample(1 : nrow(fold[2]), .2 * nrow(fold[2]), replace = F)
+	is.subtrain <- setdiff(1:nrow(fold[2]), is.validation)
+	#train convolutional network
+	# same model architecture as in mnist_ccn_keras R example, but with the input_shape changed to 
+	# reflect the size of the zip.train images (16x16). There should be 315146 total parameters to learn
+	# The number of hidden units in each layer is 784, 6272, 9216, 128, 10.
+
+	
+	#train dense network
+	# fully connected (784, 270, 270, 128, 10) network. The size of this netwokwr is deliberately chosen
+	# to have a similar number of parameters to learn: 321,098
+	
+}
 
 
 # TODO:  Compute validation loss for each number of epochs, and define a
