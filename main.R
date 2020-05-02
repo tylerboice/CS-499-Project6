@@ -93,9 +93,10 @@ fold.dt <- do.call(rbind, fold.dt.list)
 	
 		
 	model_dense <- keras_model_sequential() %>%
-		layer_dense(units = 270, activation = "sigmoid") %>%
-		layer_dense(units = 270, activation = "sigmoid") %>%
-		layer_dense(units = 128, activation = "sigmoid") %>%
+		layer_dense(units = 270, activation = "relu") %>%
+		layer_dense(units = 270, activation = "relu") %>%
+		layer_dense(units = 128, activation = "relu") %>%
+		layer_dense(units = 10, activation = "softmax")
 	
 	model_dense %>%
 		compile(
@@ -103,47 +104,79 @@ fold.dt <- do.call(rbind, fold.dt.list)
 			optimizer = optimizer_adadelta(),
 			metrics = c('accuracy'))
 			
+# create list to hold accuracy data at the end of the following loop
+network.data.dt <- list()
+			
 # TODO: Use x_train/y_train to fit the two neural network models described above.
 # Use at least 20 epochs with validation_split=0.2 (which splits the train data 
 # into 20% validation, 80% subtrain).
 for(fold in fold.dt)
 {
-	is.validation <- sample(1 : nrow(fold[2]), .2 * nrow(fold[2]), replace = F)
-	is.subtrain <- setdiff(1:nrow(fold[2]), is.validation)
+	x_subtrain = fold[2]
+	y_subtrain = fold[3]
 	#train convolutional network
 	# same model architecture as in mnist_ccn_keras R example, but with the input_shape changed to 
 	# reflect the size of the zip.train images (16x16). There should be 315146 total parameters to learn
 	# The number of hidden units in each layer is 784, 6272, 9216, 128, 10.
+	model_conv %>%
+		fit(
+			x = x_subtrain, y = y_subtrain,
+			epochs = 20, validation_split = 0.2,
+			verbose = 2
+			)
 
 	
 	#train dense network
 	# fully connected (784, 270, 270, 128, 10) network. The size of this netwokwr is deliberately chosen
 	# to have a similar number of parameters to learn: 321,098
+	model_dense %>%
+		fit(
+			x = x_subtrain, y = y_sbutrain,
+			epochs = 20, validation_split = 0.2,
+			verbose = 2
+			)
+
+
+	# TODO:  Compute validation loss for each number of epochs, and define a
+	# variable best_epochs which is the number of epochs that results in 
+	# minimal validation loss.
+	best_epochs <- 100
+
+
+	# TODO: Re-fit the model on the entire train set using best_epochs and validation_split=0.
+	model_conv %>%
+			fit(
+				x = X.mat, y = y.vec,
+				epochs = best_epochs, validation_split = 0,
+				verbose = 2
+				)
+
+		
+		#train dense network
+		#fully connected (784, 270, 270, 128, 10) network. The size of this network is deliberately 	chosen
+		# to have a similar number of parameters to learn: 321,098
+		model_dense %>%
+			fit(
+				x = X.mat, y = y.vec,
+				epochs = best_epochs, validation_split = 0,
+				verbose = 2
+				)
+
+	# TODO: Finally use evaluate to compute the accuracy of the learned model on the test set.
+	# (proportion correctly predicted labels in the test set)
+	conv_score <- model_conv %>% evaluate(fold[4], fold[5], verbose = 0)
+	dense_score <- model_dense %>% evaluate(fold[4], fold[5], verbose = 0)
+
+	# TODO: Also compute the accuracy of the baseline model,
+	# which always predicts the most frequent class label in the train data.
 	
-}
 
+	# TODO: At the end of your for loop over fold IDs,
+	# you should store the accuracy values, model names,
+	# and fold IDs in a data structure (e.g. list of data tables) for analysis/plotting.
+	network.data.dt[fold] <- [scores, foldID]
 
-# TODO:  Compute validation loss for each number of epochs, and define a
-# variable best_epochs which is the number of epochs that results in 
-# minimal validation loss.
-best_epochs <- NULL
-
-
-# TODO: Re-fit the model on the entire train set using best_epochs and validation_split=0.
-
-
-# TODO: Finally use evaluate to compute the accuracy of the learned model on the test set.
-# (proportion correctly predicted labels in the test set)
-
-
-# TODO: Also compute the accuracy of the baseline model,
-# which always predicts the most frequent class label in the train data.
-
-
-# TODO: At the end of your for loop over fold IDs,
-# you should store the accuracy values, model names,
-# and fold IDs in a data structure (e.g. list of data tables) for analysis/plotting.
-
+} #end of loop over fold IDs
 
 # TODO: Finally, make a dotplot that shows all 15 test accuracy values.
 # The Y axis should show the different models, and the X axis should show the test accuracy values.
