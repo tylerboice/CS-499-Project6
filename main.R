@@ -45,6 +45,9 @@ y.vec <- zip.train.dt[[ncol(zip.train.dt)]]
 set.seed(1337)
 fold_vec <- rep(sample(1:5), l=nrow(X.mat))
 
+# input shape of the images (16x16)
+input_shape <- c(16, 16, 1)
+
 
 # For each fold ID, you should create variables x_train, y_train, x_test, y_test 
 # based on fold_vec.
@@ -93,6 +96,7 @@ fold.dt <- do.call(rbind, fold.dt.list)
 	
 		
 	model_dense <- keras_model_sequential() %>%
+		layer_flatten(input_shape = input_shape) %>%
 		layer_dense(units = 270, activation = "relu") %>%
 		layer_dense(units = 270, activation = "relu") %>%
 		layer_dense(units = 128, activation = "relu") %>%
@@ -140,6 +144,7 @@ for(fold in fold.dt)
 	# TODO:  Compute validation loss for each number of epochs, and define a
 	# variable best_epochs which is the number of epochs that results in 
 	# minimal validation loss.
+	val_loss <-  
 	best_epochs <- 100
 
 
