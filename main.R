@@ -26,6 +26,7 @@ library(tensorflow)
 library(keras)
 library(R.utils)
 
+# Load zip.train.gz
 # Download zip.train data set to local directory, if it is not present
 if(!file.exists("zip.train.gz"))
 {
@@ -38,18 +39,37 @@ N.obs <- nrow(zip.train.dt)
 X.mat <- as.matrix(zip.train.dt[, -ncol(zip.train.dt), with=FALSE])
 y.vec <- zip.train.dt[[ncol(zip.train.dt)]]
 
-# TODO: For 5-fold cross-validation, create a variable fold_vec which randomly
+# For 5-fold cross-validation, create a variable fold_vec which randomly
 # assigns each observation to a fold from 1 to 5.
-fold_vec <- NULL
+set.seed(1337)
+fold_vec <- rep(sample(1:5), l=nrow(X.mat))
 
 
-#TODO:  For each fold ID, you should create variables x_train, y_train, x_test, y_test 
+# For each fold ID, you should create variables x_train, y_train, x_test, y_test 
 # based on fold_vec.
-x_train <- NULL
-y_train <- NULL
-x_test <- NULL
-y_test <- NULL
 
+# Initalize a list to hold folds and their respective test train
+fold.dt.list <- list()
+
+# Loop through folds to create fold specific data
+for(test.fold in 1:5) {
+  is.test <- fold_vec == test.fold
+  is.train <- !is.test
+  x_train <- X.mat[is.train,]
+  y_train <- y.vec[is.train]
+  x_test <- X.mat[is.test,]
+  y_test <- y.vec[is.test]
+  
+  # Save generated fold specific data
+  fold.dt.list[[test.fold]] <- data.table::data.table(
+    test.fold,
+    x_train,
+    y_train,
+    x_test,
+    y_test
+  )
+}
+fold.dt <- do.call(rbind, fold.dt.list)
 
 # TODO: Use x_train/y_train to fit the two neural network models described above.
 # Use at least 20 epochs with validation_split=0.2 (which splits the train data 
