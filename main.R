@@ -24,7 +24,6 @@ library(data.table)
 library(ggplot2)
 library(tensorflow)
 library(keras)
-mnist <- keras::dataset_mnist()
 library(R.utils)
 
 # Load zip.train.gz
@@ -75,7 +74,7 @@ for(test.fold in 1:5) {
 fold.dt <- do.call(rbind, fold.dt.list)
 
 
-# set up convolutional model and dense model
+# set up convolutional model
 	#TODO convolutional model may not be correctly set up yet
 	model_conv <- keras_model_sequential() %>%
 		layer_conv_2d(filters = 32, kernel_size = c(3,3), activation = 'relu', 
@@ -84,16 +83,21 @@ fold.dt <- do.call(rbind, fold.dt.list)
 		layer_max_pooling_2d(pool_size = c(2,2)) %>%
 		layer_flatten() %>%
 		layer_dense(units = 128, activation = 'relu') %>%
-		layer_dense(units = num_classes, activation = 'softmax')
+		layer_dense(units = 10, activation = 'softmax')
+	
+	model_conv %>% compile(
+	  loss = loss_categorical_crossentropy,#for multi-class classification
+	  optimizer = optimizer_adadelta(),
+	  metrics = c('accuracy')
+	)
 		
 	model_conv %>%
 		compile(
 			loss = "loss_categorical_crossentropy",
 			optimizer = optimizer_adadelta(),
 			metrics = c('accuracy'))
-			
 	
-		
+# set up dense model		
 	model_dense <- keras_model_sequential() %>%
 		layer_flatten(input_shape = input_shape) %>%
 		layer_dense(units = 270, activation = "relu") %>%
@@ -143,7 +147,7 @@ for(fold in fold.dt)
 	# TODO:  Compute validation loss for each number of epochs, and define a
 	# variable best_epochs which is the number of epochs that results in 
 	# minimal validation loss.
-	val_loss <-  
+	val_loss <- NULL 
 	best_epochs <- 100
 
 
