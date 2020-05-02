@@ -75,41 +75,38 @@ fold.dt <- do.call(rbind, fold.dt.list)
 
 
 # set up convolutional model
-	#TODO convolutional model may not be correctly set up yet
-	model_conv <- keras_model_sequential() %>%
-		layer_conv_2d(filters = 32, kernel_size = c(3,3), activation = 'relu', 
-		input_shape = input_shape) %>%
-		layer_conv_2d(filters = 64, kernel_size = c(3,3), activation = 'relu' ) %>%
-		layer_max_pooling_2d(pool_size = c(2,2)) %>%
-		layer_flatten() %>%
-		layer_dense(units = 128, activation = 'relu') %>%
-		layer_dense(units = 10, activation = 'softmax')
+model_conv <- keras_model_sequential() %>%
+	layer_conv_2d(filters = 32, kernel_size = c(3,3), activation = 'relu', 
+	input_shape = input_shape) %>%
+	layer_conv_2d(filters = 64, kernel_size = c(3,3), activation = 'relu' ) %>%
+	layer_max_pooling_2d(pool_size = c(2,2)) %>%
+	layer_flatten() %>%
+	layer_dense(units = 128, activation = 'relu') %>%
+	layer_dense(units = 10, activation = 'softmax')
+
+summary(model_conv)
 	
-	model_conv %>% compile(
-	  loss = loss_categorical_crossentropy,#for multi-class classification
-	  optimizer = optimizer_adadelta(),
-	  metrics = c('accuracy')
-	)
-		
-	model_conv %>%
-		compile(
-			loss = "loss_categorical_crossentropy",
-			optimizer = optimizer_adadelta(),
-			metrics = c('accuracy'))
-	
+model_conv %>%
+	compile(
+		loss = loss_categorical_crossentropy,
+		optimizer = optimizer_adadelta(),
+		metrics = c('accuracy'))
+
 # set up dense model		
-	model_dense <- keras_model_sequential() %>%
-		layer_flatten(input_shape = input_shape) %>%
-		layer_dense(units = 270, activation = "relu") %>%
-		layer_dense(units = 270, activation = "relu") %>%
-		layer_dense(units = 128, activation = "relu") %>%
-		layer_dense(units = 10, activation = "softmax")
-	
-	model_dense %>%
-		compile(
-			loss = "loss_categorical_crossentropy",
-			optimizer = optimizer_adadelta(),
-			metrics = c('accuracy'))
+model_dense <- keras_model_sequential() %>%
+	layer_flatten(input_shape = input_shape) %>%
+	layer_dense(units = 270, activation = "relu") %>%
+	layer_dense(units = 270, activation = "relu") %>%
+	layer_dense(units = 128, activation = "relu") %>%
+	layer_dense(units = 10, activation = "softmax")
+
+summary(model_dense)
+
+model_dense %>%
+	compile(
+		loss = loss_categorical_crossentropy,
+		optimizer = optimizer_adadelta(),
+		metrics = c('accuracy'))
 			
 # create list to hold accuracy data at the end of the following loop
 network.data.dt <- list()
@@ -199,4 +196,4 @@ ggplot()+
 	    # Not sure what to set data to
     data=zip.some.tall)+
   facet_wrap("observation")
-  coord_equal()+
+  coord_equal()
